@@ -23,9 +23,9 @@ class RegisterHandler(BaseHandler):
 			except Exception as e:
 				print str(e)
 				self.db.rollback()
-				response['code']=304
+				response['code']=501
 				response['content']='Register failed.'
 		else:
-			response['code']=304
-			response['content']='Register failed.'
+			response['code']=403
+			response['content']='Existed phone number.'
 		self.write(response)

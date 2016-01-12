@@ -4,25 +4,27 @@ from mod.databases.tables import Partner
 from mod.databases.tables import User
 import time
 class ActivityHandler(BaseHandler):
-	def get(self):
-		response = {'code':'','activitys':[]}
-		try:
-			activitys = self.db.query(Activity).all()
-			for activity in activitys:
-				response['activitys'].append(
-					{
-						'id':activity.id,
-						'activity':activity.activity,
-						'leader':activity.leader,
-						'time':activity.time,
-						'des':activity.description
-					})
-			response['code']=200	
-		except Exception as e:
-			response['code']=500
-			print str(e)
-			self.db.rollback()
-		self.write(response)
+	def get(self,types):
+		# get the list of activities
+		if types == 'list':
+			response = {'code':'','activitys':[]}
+			try:
+				activitys = self.db.query(Activity).all()
+				for activity in activitys:
+					response['activitys'].append(
+						{
+							'id':activity.id,
+							'activity':activity.activity,
+							'leader':activity.leader,
+							'time':str(activity.time),
+							'des':activity.description
+						})
+				response['code']=200
+			except Exception as e:
+				response['code']=500
+				print str(e)
+				self.db.rollback()
+			self.write(response)
 
 
 	def post(self,types):

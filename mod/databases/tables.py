@@ -26,6 +26,14 @@ class Partner(Base):
 	activity_id = Column(String)
 	user_id = Column(String)
 	user_name = Column(String)
+
+class UUUID(Base):
+	__tablename__ = 'uuuid'
+	id = Column(Integer,primary_key = True)
+	uuuid = Column(String)
+	user_id = Column(String)
+	create_time = Column(Integer)
+
 	
 
 

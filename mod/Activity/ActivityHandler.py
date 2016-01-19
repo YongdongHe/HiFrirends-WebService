@@ -1,3 +1,4 @@
+#coding=utf8
 from mod.BaseHandler import BaseHandler
 from mod.databases.tables import Activity
 from mod.databases.tables import Partner
@@ -39,6 +40,7 @@ class ActivityHandler(BaseHandler):
 		response = {'code':'','content':''}
 		user = self.get_current_user()
 		print str(user.user_phone)
+		#发布活动
 		if types == '1':
 			try:
 				des = self.get_argument('des')
@@ -52,14 +54,14 @@ class ActivityHandler(BaseHandler):
 					description = des)
 				self.db.add(activity)
 				self.db.commit()
-				response['content']='publish activity success'
+				response['content']='发布活动成功。赶紧去给好友们分享吧。'
 				response['code']=200	
 			except Exception as e:
 				print str(e)
-				response['content']='publish activity fail'
+				response['content']='发布活动失败。'
 				response['code']=500
 			self.write(response)
-		#attend
+		#参加活动
 		elif types == '2':
 			try:
 				activity_id = self.get_argument('activity_id')
@@ -70,15 +72,15 @@ class ActivityHandler(BaseHandler):
 					user_name = user.user_name)
 				self.db.add(partner)
 				self.db.commit()
-				response['content']='attend activity success'
-				response['code']=200	
+				response['content']='成功参与活动。'
+				response['code']=200
 			except Exception as e:
 				print str(e)
-				response['content']='attend activity fail'
+				response['content']='参与活动失败。'
 				response['code']=500
 			self.write(response)
 		else:
-			response['content']='fail'
+			response['content']='错误的url.'
 			response['code']=500
 			self.write(response)
 

@@ -2,10 +2,11 @@
 from mod.BaseHandler import BaseHandler
 from mod.databases.tables import User
 from mod.databases.tables import Authcode
+from mod.databases.tables import UUUID
 import uuid
 import random
 import time
-class RegisterHandler(BaseHandler):
+class AuthHandler(BaseHandler):
 	def get(self):
 		self.write('Register Page')
 
@@ -13,19 +14,23 @@ class RegisterHandler(BaseHandler):
 		if types == 'getcode':
 			self.getCode()
 		elif types == 'doregister':
-			self.doRegister()	
+			self.doRegister()
+		elif types == 'dolog':
+			self.doLog()
+		else:
+			self.writeError(404,"错误的url.")
 
 
 	def getCode(self):
-		#/register/getcode
+		#/auth/getcode
 		response = {'code':'','content':''}
 		"""
-		url: 			/register/getcode
+		url: 			/auth/getcode
 		type:			get
-		description:	get all activities
+		description:	获得验证码
 		param:
 		{
-			phone:'',
+			phone:''
 		}
 		"""
 		user_phone = self.get_argument('phone')
@@ -33,8 +38,7 @@ class RegisterHandler(BaseHandler):
 		for i in range(6):
 			user_code += str(random.randint(0,9))
 		code_cache = self.db.query(Authcode).filter(Authcode.phone == user_phone).first()
-		valid_time = code_cache.create_time + 30
-		if code_cache == None or time.time() >= valid_time:
+		if code_cache == None or time.time() >= code_cache.create_time + 30:
 			#have not get code || next code is enable
 			authcode = Authcode(
 				phone = user_phone,
@@ -46,7 +50,7 @@ class RegisterHandler(BaseHandler):
 			try:
 				self.db.add(authcode)
 				self.db.commit()
-				#print self.auth.sendCode(user_phone,user_code,5)
+				print self.auth.sendCode(user_phone,user_code,5)
 				response['code']=200
 				response['content']='获取验证码成功。'
 			except Exception as e:
@@ -61,30 +65,33 @@ class RegisterHandler(BaseHandler):
 
 
 	def doRegister(self):
-		#/register/doregister
-		user_name = self.get_argument('name')
+		#/auth/doregister
+		response = {'code':'','content':''}
 		user_phone = self.get_argument('phone')
 		user_captha = self.get_argument('captha')
+		user_psd = self.get_argument('psd')
 		user = self.db.query(User).filter(
-			User.user_name == user_name,
 			User.user_phone == user_phone).first()
 		if user != None:
 			response['code']=403
 			response['content']='此手机号已被注册。'
 			self.write(response)
-			self.finish()
+			return
 		cache_code = self.db.query(Authcode).filter(Authcode.phone == user_phone).first()
-		valid_time = cache_code.create_time + 60*5;
-		if cache_code == None or time.time() >= valid_time:
+		if cache_code == None or time.time() >= cache_code.create_time + 60*5:
 			response['code']=403
 			response['content']='验证码已失效，请重新获取。'
 			self.write(response)
-			self.finish()
+			return
 		if user_captha == cache_code.code:
-			user_uuid = str(uuid.uuid3(user_phone))
-			user = User(user_name=user_name,user_phone=user_phone,uuid=user_uuid)
+			user = User(user_name=user_phone,user_phone=user_phone,psd=user_psd)
 			try:
 				self.db.add(user)
+				self.db.commit()
+				user = self.db.query(User).filter(User.user_phone == user_phone).first()
+				user_uuid = str(uuid.uuid4())
+				new_uuuid = UUUID(uuuid=user_uuid,user_id=user.id,create_time=time.time())
+				self.db.add(new_uuuid)
 				self.db.commit()
 				response['code']=200
 				response['content']=user_uuid
@@ -94,5 +101,42 @@ class RegisterHandler(BaseHandler):
 				response['code']=500
 				response['content']='注册失败，服务器发生了未知错误。'
 			self.write(response)
+
+	def doLog(self):
+		response = {'code':'','content':''}
+		user_phone = self.get_argument('phone')
+		user_psd = self.get_argument('psd')
+		user = self.db.query(User).filter(
+			User.user_phone == user_phone).first()
+		if user == None:
+			response['code']=403
+			response['content']='此手机号未注册，请先注册~'
+			self.write(response)
+			return
+		if user.psd != user_psd:
+			response['code']=403
+			response['content']='密码错误，请重试'
+			self.write(response)
+			return
+		user_uuid = str(uuid.uuid4())
+		old_uuid = self.db.query(UUUID).filter(UUUID.user_id == user.id).first()
+		new_uuuid = UUUID(uuuid=user_uuid,user_id=user.id,create_time=time.time())	
+		try:
+			if old_uuid!= None:
+				self.db.delete(old_uuid)
+				self.db.commit()
+			self.db.add(new_uuuid)
+			self.db.commit()
+			response['code']=200
+			response['content']=str(user_uuid)
+			self.write(response)
+		except Exception as e:
+			print str(e)
+			self.db.rollback()
+			response['code']=500
+			response['content']='登录失败，请重试。'
+			self.write(response)
+
+
 
 

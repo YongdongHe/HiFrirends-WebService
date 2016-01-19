@@ -474,3 +474,5 @@ def main():
 	#短信
 	print(test.templateSMS(accountSid,accountToken,appId,toNumber,templateId,param,isUseJson))
 
+if __name__ == '__main__':
+	main()

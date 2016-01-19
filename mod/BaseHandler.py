@@ -1,3 +1,4 @@
+#coding=utf8
 import random
 import tornado.web
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -12,7 +13,7 @@ class BaseHandler(tornado.web.RequestHandler):
 		_uuid = self.get_argument('uuid')
 		uuid = self.db.query(UUUID).filter(UUUID.uuuid == _uuid).first()
 		if uuid == None:
-			response = {'code':401,'content':'Authorized failed .'}
+			response = {'code':401,'content':'认证信息错误或者已经过期，请重新登录。'}
 			self.write(response)
 			self.finish()
 		else:
@@ -24,4 +25,9 @@ class BaseHandler(tornado.web.RequestHandler):
 	@property
 	def auth(self):
 		return self.application.auth
+
+
+	def writeError(self,code,msg):
+		response = {'code':code,'content':msg}
+		self.write(response)
 

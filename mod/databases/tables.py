@@ -10,7 +10,7 @@ class User(Base):
 	id = Column(Integer,primary_key = True)
 	user_phone = Column(String)
 	user_name = Column(String)
-	uuid = Column(String)
+	psd = Column(String)
 
 class Activity(Base):
 	__tablename__ = 'activities'

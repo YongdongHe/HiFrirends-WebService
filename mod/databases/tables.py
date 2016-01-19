@@ -34,6 +34,13 @@ class UUUID(Base):
 	user_id = Column(String)
 	create_time = Column(Integer)
 
+class Authcode(Base):
+	__tablename__ = 'authcodes'
+	id = Column(Integer,primary_key = True)
+	phone = Column(String)
+	code = Column(String)
+	create_time = Column(Integer)
+
 	
 
 

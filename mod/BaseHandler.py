@@ -10,13 +10,18 @@ from mod.databases.tables import UUUID
 class BaseHandler(tornado.web.RequestHandler):
 	def get_current_user(self):
 		_uuid = self.get_argument('uuid')
-		uuid = self.db.query(UUUID).filter(UUUID.uuid == _uuid).first()
+		uuid = self.db.query(UUUID).filter(UUUID.uuuid == _uuid).first()
 		if uuid == None:
-			response = {'code':401,'content':'Unauthorized.'}
-			self.wirte(response)
+			response = {'code':401,'content':'Authorized failed .'}
+			self.write(response)
 			self.finish()
 		else:
 			return self.db.query(User).filter(User.id == uuid.user_id).first()
 	@property
 	def db(self):
 		return self.application.db
+
+	@property
+	def auth(self):
+		return self.application.auth
+

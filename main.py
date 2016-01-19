@@ -5,8 +5,9 @@ import tornado.options
 import tornado.web
 from sqlalchemy.orm import scoped_session, sessionmaker
 from mod.databases.db import engine
-from mod.RegisterHandler import RegisterHandler
-from mod.ActivityHandler import ActivityHandler
+from mod.Auth.RegisterHandler import RegisterHandler
+from mod.Auth.AuthHelper import AuthHelper
+from mod.Activity.ActivityHandler import ActivityHandler
 from tornado.options import define, options
 
 define("port", default=8000, help="run on the given port", type=int)
@@ -16,7 +17,7 @@ class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
         (r"/", IndexHandler),
-        (r"/register",RegisterHandler),
+        (r"/register/(\w+)",RegisterHandler),
         (r"/activity/(\w+)",ActivityHandler),
         ]
         settings = dict(
@@ -27,6 +28,7 @@ class Application(tornado.web.Application):
         self.db = scoped_session(sessionmaker(bind=engine,
                                               autocommit=False, autoflush=True,
                                               expire_on_commit=False))
+        self.auth = AuthHelper()
 
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):

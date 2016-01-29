@@ -53,9 +53,12 @@ class AuthHandler(BaseHandler):
 				self.db.commit()
 				sendresult = eval(self.auth.sendCode(user_phone,user_code,5))
 				print sendresult
-				if sendresult['resp']['respCode'] == '100000' :
+				if sendresult['resp']['respCode'] == '000000' :
 					response['code']=200
 					response['content']='获取验证码成功，请注意查收。'
+				elif sendresult['resp']['respCode']=='105122':
+					response['code']=403
+					response['content']='请求验证码次数过多。'
 				else:
 					response['code']=403
 					response['content']='请输入正确的手机号。'
@@ -79,6 +82,7 @@ class AuthHandler(BaseHandler):
 		user_psd = self.get_argument('psd')
 		user = self.db.query(User).filter(
 			User.user_phone == user_phone).first()
+		print user
 		if user != None:
 			response['code']=403
 			response['content']='此手机号已被注册。'
@@ -101,12 +105,17 @@ class AuthHandler(BaseHandler):
 				self.db.add(new_uuuid)
 				self.db.commit()
 				response['code']=200
-				response['content']=user_uuid
+				response['content']='注册成功。'
+				response['uuid']=user_uuid
 			except Exception as e:
 				print str(e)
 				self.db.rollback()
 				response['code']=500
 				response['content']='注册失败，服务器发生了未知错误。'
+			self.write(response)
+		else:
+			response['code']=403
+			response['content']='验证码错误，请重新输入。'
 			self.write(response)
 
 	def doLog(self):

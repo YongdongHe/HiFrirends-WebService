@@ -16,6 +16,7 @@ class BaseHandler(tornado.web.RequestHandler):
 			response = {'code':401,'content':'认证信息错误或者已经过期，请重新登录。'}
 			self.write(response)
 			self.finish()
+			return None
 		else:
 			return self.db.query(User).filter(User.id == uuid.user_id).first()
 	@property
@@ -25,6 +26,8 @@ class BaseHandler(tornado.web.RequestHandler):
 	@property
 	def auth(self):
 		return self.application.auth
+	def on_finish(self):
+        self.db.close()
 
 
 	def writeError(self,code,msg):

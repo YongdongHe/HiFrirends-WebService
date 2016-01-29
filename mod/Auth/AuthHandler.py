@@ -3,6 +3,7 @@ from mod.BaseHandler import BaseHandler
 from mod.databases.tables import User
 from mod.databases.tables import Authcode
 from mod.databases.tables import UUUID
+import traceback
 import uuid
 import random
 import time
@@ -50,16 +51,18 @@ class AuthHandler(BaseHandler):
 			try:
 				self.db.add(authcode)
 				self.db.commit()
-				sendresult = self.auth.sendCode(user_phone,user_code,5)
-				if sendresult['resp']['respcode']==100000 :
+				sendresult = eval(self.auth.sendCode(user_phone,user_code,5))
+				print sendresult
+				if sendresult['resp']['respCode'] == '100000' :
 					response['code']=200
 					response['content']='获取验证码成功，请注意查收。'
 				else:
 					response['code']=403
 					response['content']='请输入正确的手机号。'
 			except Exception as e:
+				traceback.print_exc()
 				print str(e)
-				self.rollback()
+				self.db.rollback()
 				response['code']=500
 				response['content']='服务器发生了未知错误。'
 		else:

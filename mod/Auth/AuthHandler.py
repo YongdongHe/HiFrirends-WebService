@@ -50,9 +50,13 @@ class AuthHandler(BaseHandler):
 			try:
 				self.db.add(authcode)
 				self.db.commit()
-				print self.auth.sendCode(user_phone,user_code,5)
-				response['code']=200
-				response['content']='获取验证码成功。'
+				sendresult = self.auth.sendCode(user_phone,user_code,5)
+				if sendresult['resp']['respcode']==100000 :
+					response['code']=200
+					response['content']='获取验证码成功，请注意查收。'
+				else:
+					response['code']=403
+					response['content']='请输入正确的手机号。'
 			except Exception as e:
 				print str(e)
 				self.rollback()

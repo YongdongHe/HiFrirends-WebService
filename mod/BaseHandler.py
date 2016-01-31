@@ -27,7 +27,7 @@ class BaseHandler(tornado.web.RequestHandler):
 	def auth(self):
 		return self.application.auth
 	def on_finish(self):
-        self.db.close()
+		self.db.close()
 
 
 	def writeError(self,code,msg):

@@ -121,9 +121,11 @@ class AuthHandler(BaseHandler):
 	def doLog(self):
 		response = {'code':'','content':''}
 		user_phone = self.get_argument('phone')
+		print user_phone
 		user_psd = self.get_argument('psd')
 		user = self.db.query(User).filter(
 			User.user_phone == user_phone).first()
+		print user
 		if user == None:
 			response['code']=403
 			response['content']='此手机号未注册，请先注册~'
@@ -144,7 +146,8 @@ class AuthHandler(BaseHandler):
 			self.db.add(new_uuuid)
 			self.db.commit()
 			response['code']=200
-			response['content']=str(user_uuid)
+			response['content']='登录成功'
+			response['uuid']=str(user_uuid)
 			self.write(response)
 		except Exception as e:
 			print str(e)

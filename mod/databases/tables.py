@@ -16,7 +16,7 @@ class Activity(Base):
 	__tablename__ = 'activities'
 	id = Column(Integer,primary_key = True)
 	activity = Column(String)
-	time = Column(String)
+	time = Column(Float)
 	leader = Column(String)
 	description = Column(String)
 

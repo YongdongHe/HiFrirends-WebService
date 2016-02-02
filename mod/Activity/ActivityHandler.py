@@ -25,7 +25,7 @@ class ActivityHandler(BaseHandler):
 							'id':activity.id,
 							'activity':activity.activity,
 							'leader':activity.leader,
-							'time':activity.time,
+							'time':time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(activity.time)),
 							'des':activity.description
 						})
 				response['code']=200
@@ -45,17 +45,17 @@ class ActivityHandler(BaseHandler):
 			try:
 				des = self.get_argument('des')
 				act = self.get_argument('activity',default=None)
-				leader = user.user_name	
-				print time.time()
+				leader = user.user_name
 				activity = Activity(
 					activity=act,
 					leader = leader,
-					time = time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(time.time())),
+					time = time.time(),
 					description = des)
+				print activity.time
 				self.db.add(activity)
 				self.db.commit()
 				response['content']='发布活动成功。赶紧去给好友们分享吧'
-				response['code']=200	
+				response['code']=200
 			except Exception as e:
 				print str(e)
 				response['content']='发布活动失败。'

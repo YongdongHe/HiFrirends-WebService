@@ -23,10 +23,11 @@ class ActivityHandler(BaseHandler):
 					response['activities'].append(
 						{
 							'id':activity.id,
-							'activity':activity.activity,
+							'title':activity.title,
+							'label':activity.label,
 							'leader':activity.leader,
 							'time':time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(activity.time)),
-							'des':activity.description
+							'content':activity.content
 						})
 				response['code']=200
 			except Exception as e:
@@ -34,23 +35,52 @@ class ActivityHandler(BaseHandler):
 				print str(e)
 				self.db.rollback()
 			self.write(response)
-
+		elif types == 'status':
+			#根据activity id 获得某个id的具体情况
+			activity_id = self.get_argument('activity_id')
+			activity = self.db.query(Activity).filter(Activity.id == activity_id).first()
+			response = {}
+			if activity == None:
+				response['code']=404
+				response['content']='该活动不存在或者已被删除。'
+				self.write(response)
+				return
+			response = {'code':'','content':{
+				'activity_id':activity_id,
+				'title':activity.title,
+				'label':activity.label,
+				'leader':activity.leader,
+				'time':time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(activity.time)),
+				'content':activity.content,
+				'partners':[]
+			}}
+			partners = self.db.query(Partner).filter(Partner.activity_id == activity_id)
+			for each_partner in partners:
+				response['content']['partners'].append({
+					'id':each_partner.user_id,
+					'name':each_partner.user_name
+					'phone':each_partner.user_phone
+				})
+			response['code']=200
+			self.write(response)
 
 	def post(self,types):
 		response = {'code':'','content':''}
 		user = self.get_current_user()
 		print str(user.user_phone)
 		#发布活动
-		if types == '1':
+		if types == 'publish':
 			try:
-				des = self.get_argument('des')
-				act = self.get_argument('activity',default=None)
+				title = self.get_argument('title')
+				content = self.get_argument('content',default=None)
+				label = self.get_argument('label')
 				leader = user.user_name
 				activity = Activity(
-					activity=act,
+					title = title,
+					label = label,
 					leader = leader,
 					time = time.time(),
-					description = des)
+					content = content)
 				print activity.time
 				self.db.add(activity)
 				self.db.commit()
@@ -62,14 +92,15 @@ class ActivityHandler(BaseHandler):
 				response['code']=500
 			self.write(response)
 		#参加活动
-		elif types == '2':
+		elif types == 'join':
 			try:
 				activity_id = self.get_argument('activity_id')
 				attender = user.user_name
 				partner = Partner(
 					activity_id = activity_id,
 					user_id = user.id,
-					user_name = user.user_name)
+					user_name = user.user_name,
+					user_phone = user.user_phone)
 				self.db.add(partner)
 				self.db.commit()
 				response['content']='成功参与活动。'

@@ -15,10 +15,11 @@ class User(Base):
 class Activity(Base):
 	__tablename__ = 'activities'
 	id = Column(Integer,primary_key = True)
-	activity = Column(String)
+	title = Column(String)
 	time = Column(Float)
 	leader = Column(String)
-	description = Column(String)
+	label = Column(String)
+	content = Column(String)
 
 class Partner(Base):
 	__tablename__ = 'partners'
@@ -26,6 +27,7 @@ class Partner(Base):
 	activity_id = Column(String)
 	user_id = Column(String)
 	user_name = Column(String)
+	user_phone = Column(String)
 
 class UUUID(Base):
 	__tablename__ = 'uuuid'

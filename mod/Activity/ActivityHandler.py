@@ -58,7 +58,7 @@ class ActivityHandler(BaseHandler):
 			for each_partner in partners:
 				response['content']['partners'].append({
 					'id':each_partner.user_id,
-					'name':each_partner.user_name
+					'name':each_partner.user_name,
 					'phone':each_partner.user_phone
 				})
 			response['code']=200

@@ -16,16 +16,16 @@ class ActivityHandler(BaseHandler):
 			param:			none
 		"""
 		if types == 'list':
-			response = {'code':'','activitys':[]}
+			response = {'code':'','activities':[]}
 			try:
-				activitys = self.db.query(Activity).all()
+				activitys = self.db.query(Activity).order_by(Activity.time).all()[::-1]
 				for activity in activitys:
-					response['activitys'].append(
+					response['activities'].append(
 						{
 							'id':activity.id,
 							'activity':activity.activity,
 							'leader':activity.leader,
-							'time':str(activity.time),
+							'time':activity.time,
 							'des':activity.description
 						})
 				response['code']=200
@@ -45,16 +45,16 @@ class ActivityHandler(BaseHandler):
 			try:
 				des = self.get_argument('des')
 				act = self.get_argument('activity',default=None)
-				leader = user.user_name
-				now_time = time.strftime('%Y-%m-%d %X',time.localtime(time.time()))				
+				leader = user.user_name	
+				print time.time()
 				activity = Activity(
 					activity=act,
 					leader = leader,
-					time = now_time,
+					time = time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(time.time())),
 					description = des)
 				self.db.add(activity)
 				self.db.commit()
-				response['content']='发布活动成功。赶紧去给好友们分享吧。'
+				response['content']='发布活动成功。赶紧去给好友们分享吧'
 				response['code']=200	
 			except Exception as e:
 				print str(e)

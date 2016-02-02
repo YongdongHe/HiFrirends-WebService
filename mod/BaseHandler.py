@@ -10,12 +10,12 @@ from mod.databases.tables import UUUID
 
 class BaseHandler(tornado.web.RequestHandler):
 	def get_current_user(self):
-		_uuid = self.get_argument('uuid')
+		_uuid = self.get_argument('uuid',default=None)
 		uuid = self.db.query(UUUID).filter(UUUID.uuuid == _uuid).first()
 		if uuid == None:
 			response = {'code':401,'content':'认证信息错误或者已经过期，请重新登录。'}
 			self.write(response)
-			self.finish()
+			self.on_finish()
 			return None
 		else:
 			return self.db.query(User).filter(User.id == uuid.user_id).first()

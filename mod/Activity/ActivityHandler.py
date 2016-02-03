@@ -81,7 +81,6 @@ class ActivityHandler(BaseHandler):
 					leader = leader,
 					time = time.time(),
 					content = content)
-				print activity.time
 				self.db.add(activity)
 				self.db.commit()
 				response['content']='发布活动成功。赶紧去给好友们分享吧'
@@ -95,7 +94,15 @@ class ActivityHandler(BaseHandler):
 		elif types == 'join':
 			try:
 				activity_id = self.get_argument('activity_id')
-				attender = user.user_name
+				partner_joined = self.db.query(Partner).filter(
+					Partner.user_id == user.id,
+					Partner.activity_id == activity_id).first()
+				if partner_joined!=None:
+					# 说明已经参与过该活动
+					response['content']='你已参与过该活动。'
+					response['code']=200
+					self.write(response)
+					return
 				partner = Partner(
 					activity_id = activity_id,
 					user_id = user.id,

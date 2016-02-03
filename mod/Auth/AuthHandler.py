@@ -94,6 +94,8 @@ class AuthHandler(BaseHandler):
 			response['content']='验证码已失效，请重新获取。'
 			self.write(response)
 			return
+		print user_captha
+		print cache_code.code
 		if user_captha == cache_code.code:
 			user = User(user_name=user_phone,user_phone=user_phone,psd=user_psd)
 			try:

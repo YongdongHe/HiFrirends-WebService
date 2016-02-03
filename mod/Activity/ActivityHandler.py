@@ -73,7 +73,7 @@ class ActivityHandler(BaseHandler):
 			try:
 				title = self.get_argument('title')
 				content = self.get_argument('content',default=None)
-				label = self.get_argument('label')
+				label = self.get_argument('label',default='')
 				leader = user.user_name
 				activity = Activity(
 					title = title,

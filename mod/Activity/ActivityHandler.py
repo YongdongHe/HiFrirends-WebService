@@ -3,6 +3,7 @@ from mod.BaseHandler import BaseHandler
 from mod.databases.tables import Activity
 from mod.databases.tables import Partner
 from mod.databases.tables import User
+import json
 import time
 class ActivityHandler(BaseHandler):
 	def get(self,types):
@@ -64,11 +65,24 @@ class ActivityHandler(BaseHandler):
 			response['code']=200
 			self.write(response)
 
+
 	def post(self,types):
 		response = {'code':'','content':''}
 		user = self.get_current_user()
 		print str(user.user_phone)
 		#发布活动
+		"""
+			url:			activity/publish
+			type:			post
+			description:	发布活动
+			param:			
+			{
+				title: 	活动标题
+				content:活动内容
+				label: 	活动标签
+				uuid:	用户uuid	
+			}
+		"""
 		if types == 'publish':
 			try:
 				title = self.get_argument('title')
@@ -91,6 +105,16 @@ class ActivityHandler(BaseHandler):
 				response['code']=500
 			self.write(response)
 		#参加活动
+		"""
+			url:			activity/join
+			type:			post
+			description:	参与活动
+			param:			
+			{
+				id:		参与活动的id
+				uuid:	用户uuid
+			}
+		"""
 		elif types == 'join':
 			try:
 				activity_id = self.get_argument('activity_id')

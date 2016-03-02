@@ -27,7 +27,7 @@ class AuthHandler(BaseHandler):
 		response = {'code':'','content':''}
 		"""
 		url: 			/auth/getcode
-		type:			get
+		type:			post
 		description:	获得验证码
 		param:
 		{
@@ -76,6 +76,17 @@ class AuthHandler(BaseHandler):
 
 	def doRegister(self):
 		#/auth/doregister
+				"""
+		url: 			/auth/doregister
+		type:			post
+		description:	注册用户
+		param:
+		{
+			phone:	''
+			captha：''
+			psd:	''
+		}
+		"""
 		response = {'code':'','content':''}
 		user_phone = self.get_argument('phone')
 		user_captha = self.get_argument('captha')
@@ -121,6 +132,17 @@ class AuthHandler(BaseHandler):
 			self.write(response)
 
 	def doLog(self):
+		"""
+		url: 			/auth/dolog
+		type:			post
+		description:	登录
+		param:
+		{
+			phone:	''
+			psd:	''
+		}
+		
+		"""
 		response = {'code':'','content':''}
 		user_phone = self.get_argument('phone')
 		print user_phone
